@@ -1,29 +1,41 @@
-from functools import partial
+import json
+from configparser import ConfigParser
 from functools import singledispatch
-from io import StringIO
+from pathlib import Path
+from typing import List, NamedTuple
 
-from utils import _verify_lockfile, get_packages_from_lockfile
-
+from click import secho
+from fabric.api import abort, lcd, local, settings, task, warn_only
 from fabric.tasks import Task
-from fabric.api import *
-
-from colorama import init, Back
-init(autoreset=True)
 
 
-def print_in_color(color, *args, **kwargs):
-    """Print text in a given color."""
-    file = kwargs.pop('file', None)
-    with StringIO('w+') as fp:
-        fp.write(color)
-        print(*args, file=fp, **kwargs)
-        fp.seek(0)
-        print(fp.read().strip(), file=file)
+def _verify_lockfile():
+    """Assert that all the packages in Pipfile are in Pipfile.lock"""
 
+    class Packages(NamedTuple):
+        default: List[str]
+        development: List[str]
 
-print_red = partial(print_in_color, Back.RED)
-print_green = partial(print_in_color, Back.GREEN)
-print_yellow = partial(print_in_color, Back.YELLOW)
+    config = ConfigParser()
+    config.read('Pipfile')
+
+    pipfile_packages = set(
+        p.lower().replace('_', '-')
+        for p, _ in config.items('packages') + (config.items(
+            'dev-packages') if config.has_section('dev-packages') else []))
+
+    for char in ['"', "'"]:
+        pipfile_packages = set(p.replace(char, '') for p in pipfile_packages)
+
+    lockfile_data = json.loads(Path('Pipfile.lock').read_text())
+    lockfile_packages = set(
+        tuple(lockfile_data['default'].keys()) +
+        tuple(lockfile_data['develop'].keys()))
+
+    assert pipfile_packages.issubset(
+        lockfile_packages), \
+        '{} package(s) in Pipfile not in Pipfile.lock - pipenv lock'. \
+        format(pipfile_packages.difference(lockfile_packages))
 
 
 @task
@@ -62,6 +74,15 @@ def clean():
 
 
 @task
+def dev_init():
+    """Initialize clean development environment."""
+    with warn_only():
+        local("pipenv --rm")  # can fail
+    local("pipenv install --dev")
+    gen_requirements_txt.run()  # for zest.releaser
+
+
+@task
 def test(capture=True):
     """
     Run tests quickly with default Python.
@@ -75,7 +96,7 @@ def test(capture=True):
 
 
 @task(alias='tox')
-def test_all(absolute_path=None):
+def test_all():
     """Run on multiple Python versions with tox."""
     local('tox')
 
@@ -125,18 +146,21 @@ def publish_docs():
     with settings(warn_only=True):
         if local('git diff-index --quiet HEAD --').failed:
             local('git status')
-            abort('The working directory is dirty. Please commit any pending changes.')
+            abort(
+                'The working directory is dirty. Please commit any pending changes.'
+            )
 
         if local('git show-ref refs/heads/gh-pages').failed:
             # initialized github pages branch
-            local(dedent("""
+            local(
+                dedent("""
                 git checkout --orphan gh-pages
                 git reset --hard
                 git commit --allow-empty -m "Initializing gh-pages branch"
                 git push gh-pages
                 git checkout master
                 """).strip())
-            print_green('created github pages branch')
+            secho('created github pages branch', fg='green')
 
     # deleting old publication
     local('rm -rf public')
@@ -180,16 +204,15 @@ def gen_requirements_txt(with_dev=True):
     This is more for the benefit of third-party packages
     like pyup.io that need requirements.txt
     """
-    from pathlib import Path
-
-    verify_lockfile.run()
-
-    packages = get_packages_from_lockfile()
-
-    requirements_file = Path('requirements.txt')
-
-    requirements_file.write_text('\n'.join(packages.default + (packages.development if true(with_dev) else [])))
-    print_green('successfully generated requirements.txt')
+    out = local('pipenv lock -r', capture=True)
+    with open("requirements.txt", "w") as requirements:
+        requirements.write(out.stdout)
+    secho('succesfully generated requirements.txt', fg='green')
+    if with_dev:
+        out = local('pipenv lock -d -r', capture=True)
+        with open("test-requirements.txt", "w") as requirements:
+            requirements.write(out.stdout)
+        secho('succesfully generated test-requirements.txt', fg='green')
 
 
 class VerifyLockfile(Task):
@@ -202,7 +225,7 @@ class VerifyLockfile(Task):
     @set_docstring
     def run(self):
         _verify_lockfile()
-        print_green('lockfile verified')
+        secho('lockfile verified', fg='green')
 
 
 verify_lockfile = VerifyLockfile()
