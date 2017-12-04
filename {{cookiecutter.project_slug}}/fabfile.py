@@ -197,7 +197,7 @@ def release():
 
 
 @task
-def gen_requirements_txt(with_dev=True):
+def gen_requirements_txt(with_dev=False):
     """
     Generate a requirements.txt from Pipfile.lock
 
