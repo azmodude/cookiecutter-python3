@@ -197,7 +197,7 @@ def release():
 
 
 @task
-def gen_requirements_txt(with_dev=False):
+def gen_requirements_txt(with_dev=True):
     """
     Generate a requirements.txt from Pipfile.lock
 
@@ -208,7 +208,7 @@ def gen_requirements_txt(with_dev=False):
     with open("requirements.txt", "w") as requirements:
         requirements.write(out.stdout)
     secho('succesfully generated requirements.txt', fg='green')
-    if with_dev:
+    if true(with_dev):
         out = local('pipenv lock -d -r', capture=True)
         with open("test-requirements.txt", "w") as requirements:
             requirements.write(out.stdout)
