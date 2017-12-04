@@ -2,20 +2,45 @@
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
+{% if cookiecutter.python_requires != '0.0' -%}
+[requires]
+python_version = "{{ cookiecutter.python_requires }}"
+{% endif %}
 [packages]
-{% if cookiecutter.cli.lower() == 'y' or cookiecutter.cli.lower() == 'yes' %}docopt = "==0.6.2"{% endif %}
+{% if cookiecutter.cli.lower() == 'y' or cookiecutter.cli.lower() == 'yes' -%}
+click = "*"
+{% endif %}
 
 [dev-packages]
-bumpversion = "==0.5.3"
-colorama = "0.3.9"
-coverage = "==4.4.1"
-cryptography = "==1.9"
-flake8 = "==3.3.0"
+click = "*"
+"zest.releaser" = "*"
+coverage = "*"
 pytest = "*"
-pytest-runner = "==2.11.1"
-PyYAML = "==3.12"
-Sphinx = "==1.6.3"
-tox = "==2.7.0"
-sphinx-autodoc-typehints = "==1.2.0"
-wheel = "==0.29.0"
-Fabric3 = "==1.13.1.post1"
+pytest-runner = "*"
+pytest-cov = "*"
+tox = "*"
+sphinx = "*"
+sphinx_rtd_theme = "*"
+sphinx-autodoc-typehints = "*"
+sphinxcontrib-programoutput = "*"
+wheel = "*"
+flake8 = "*"
+mccabe = "*"
+pep8-naming = "*"
+flake8-todo = "*"
+flake8-author = "*"
+flake8-copyright = "*"
+flake8-docstrings = "*"
+flake8-coding = "*"
+flake8-debugger = "*"
+flake8-comprehensions = "*"
+flake8-isort = "*"
+flake8-sorted-keys = "*"
+pip-review = "*"
+ipdb = "*"
+ipython = "*"
+autopep8 = "*"
+yapf = "*"
+isort = "*"
+
+fabric3 = "*"
