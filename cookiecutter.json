@@ -1,11 +1,12 @@
 {
-  "full_name": "Stephan Fitzpatrick",
-  "email": "knowsuchagency@gmail.com",
-  "github_username": "knowsuchagency",
-  "project_name": "Python Boilerplate",
+  "full_name": "Gordon Schulz",
+  "email": "gordon.schulz@gmail.com",
+  "github_username": "azmodude",
+  "project_name": "Python3 Boilerplate",
   "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
-  "project_short_description": "Python Boilerplate contains all the boilerplate you need to create a Python package.",
+  "project_short_description": "Python3 Boilerplate contains all the boilerplate you need to create a Python package.",
   "pypi_username": "{{ cookiecutter.github_username }}",
+  "python_requires": "0.0",
   "version": "0.1.0",
   "open_source": "y",
   "cli": "y"
