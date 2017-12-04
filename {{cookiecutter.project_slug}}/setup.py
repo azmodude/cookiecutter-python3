@@ -2,31 +2,32 @@
 # -*- coding: utf-8 -*-
 
 """The setup script."""
-from utils import _verify_lockfile as verify_lockfile
-from utils import get_packages_from_lockfile
-
 from setuptools import setup
 
-# ensure all the packages listed in Pipfile are in Pipfile.lock
-verify_lockfile()
+from pip.req import parse_requirements
 
-# read the lockfile to get default and development packages
-default, development = get_packages_from_lockfile()
+requirements = [
+    str(r.req) for r in parse_requirements('requirements.txt', session=False)
+]
+test_requirements = [
+    str(r.req)
+    for r in parse_requirements('test-requirements.txt', session=False)
+]
 
 setup(
-    install_requires=default,
-    tests_require=development,
+    install_requires=requirements,
+    tests_require=test_requirements,
     extras_require={
-        'dev': development,
-        'development': development,
-        'test': development,
-        'testing': development,
+        'dev': test_requirements,
+        'development': test_requirements,
+        'test': test_requirements,
+        'testing': test_requirements
     },
-    {% if cookiecutter.cli.lower() == 'y' or cookiecutter.cli.lower() == 'yes' %}
+{% if cookiecutter.cli.lower() == 'y' or cookiecutter.cli.lower() == 'yes' -%}
     entry_points={
         'console_scripts': [
             '{{ cookiecutter.project_slug }}={{ cookiecutter.project_slug }}.cli:main'
         ]
-    },
-    {% endif %}
+},
+{% endif -%}
 )
