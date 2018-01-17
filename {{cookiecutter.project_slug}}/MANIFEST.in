@@ -1,7 +1,6 @@
 include LICENSE
 include README.rst
 include Pipfile
-include Pipfile.lock
 
 graft {{ cookiecutter.project_slug }}
 graft tests
