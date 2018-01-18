@@ -1,22 +1,39 @@
-"""{{ cookiecutter.project_slug }} v{{ cookiecutter.version }}
+"""
+Usage:  [OPTIONS] COMMAND [ARGS]...
 
-{{ cookiecutter.project_short_description }}
-
-Usage:
-    {{cookiecutter.project_slug }} [options] <argument>
-    {{cookiecutter.project_slug }} -h | --help
-    {{cookiecutter.project_slug }} -V | --version
+  A cli for {{ cookiecutter.project_slug }}.
 
 Options:
-    -h --help                 show help and exit
-    -V --version              show version and exit
+  --help  Show this message and exit.
 """
-from docopt import docopt
+from pathlib import Path
+import re
+import os
+
+import click
 
 
-def main(argv=None):
-    args = docopt(__doc__, argv=argv, version='{{ cookiecutter.version }}')
-    print(args)
+@click.group()
+def main():
+    """A cli for django-mako-plus."""
+    pass
+
+
+def get_main_helpstring(matchobj):
+    """Return a programmatically-generated module-level docstring composed from main click entrypoint."""
+    with click.Context(main) as ctx:
+        return os.linesep.join(['"""', ctx.get_help(), '"""'])
+
+
+# replace this module's docstring with the one generated from top-level cli entrypoint
+current_module_text = Path(__file__).read_text()
+with Path(__file__).open('w') as this_module:
+    new_module_text = re.sub(
+        re.compile(r'^"""(.*?)"""', re.DOTALL),
+        get_main_helpstring,
+        current_module_text
+    )
+    this_module.write(new_module_text)
 
 if __name__ == "__main__":
     main()

@@ -19,9 +19,7 @@ Features
 * Sphinx_ docs: Documentation ready for generation and hosting on `GitHub Pages`_
 * Bumpversion_: Pre-configured version bumping with a single command
 * Fabric_ for task automation
-* Optional command line interface with Docopt_.
-  The cli module's docstring is automatically added to project documentation via Sphinx_.
-  More robust cli applications may want to check out Click_
+* Optional command line interface with Click_
 
 Quickstart
 ----------
@@ -92,7 +90,7 @@ Additional Options
 
 * Create a GitHub repo for your generated project.
 * Add the repo to your Travis-CI_ account.
-* Activate your project on `pyup.io`_. Use ``fab gen_requirements_txt`` to generate requirements.txt from Pipfile.
+* Activate your project on `pyup.io`_.
 
 For more details, see the `cookiecutter-pypackage tutorial`_.
 
@@ -105,7 +103,6 @@ For more details, see the `cookiecutter-pypackage tutorial`_.
 .. _PyPi: https://pypi.python.org/pypi
 .. _`pipfile`: https://github.com/pypa/pipfile
 .. _`fabric`: http://www.fabfile.org/
-.. _`docopt`: https://github.com/docopt/docopt
 .. _`github pages`: https://pages.github.com/
 .. _`cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 .. _`Click`: http://click.pocoo.org/
